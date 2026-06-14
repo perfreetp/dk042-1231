@@ -1,0 +1,253 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.userCard {
+  background: $color-primary-gradient;
+  padding: $spacing-xl $page-padding $spacing-xl * 2.5;
+  padding-top: calc(#{$spacing-xl} + env(safe-area-inset-top));
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: $radius-round;
+  border: 6rpx solid rgba(255, 255, 255, 0.3);
+  background: $color-bg-hover;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  flex: 1;
+  margin-left: $spacing-lg;
+  min-width: 0;
+}
+
+.userName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis;
+}
+
+.userMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.phone {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4rpx 16rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  backdrop-filter: blur(10rpx);
+}
+
+.starIcon {
+  color: #FFD700;
+  margin-right: 4rpx;
+}
+
+.roleSwitcher {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-button;
+  padding: 6rpx;
+  display: flex;
+  backdrop-filter: blur(10rpx);
+  margin-top: $spacing-sm;
+  align-self: flex-start;
+}
+
+.roleBtn {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-text-white;
+    color: $color-primary;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  }
+
+  &:not(.active) {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.statsRow {
+  background: $color-bg-card;
+  margin: -$spacing-xl $page-padding $spacing-md;
+  border-radius: $radius-lg;
+  padding: $spacing-lg 0;
+  display: flex;
+  box-shadow: $shadow-float;
+  position: relative;
+  z-index: 5;
+}
+
+.statsCol {
+  flex: 1;
+  text-align: center;
+  border-right: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.statNumber {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: 1.2;
+  margin-bottom: 4rpx;
+}
+
+.statLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.menuSection {
+  background: $color-bg-card;
+  margin: 0 $page-padding $spacing-md;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.menuHeader {
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  transition: all $transition-base;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.menuIcon {
+  font-size: 40rpx;
+  width: 56rpx;
+  text-align: center;
+  margin-right: $spacing-sm;
+}
+
+.menuText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.menuBadge {
+  background: $color-error;
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+}
+
+.menuArrow {
+  color: $color-text-tertiary;
+  font-size: $font-size-lg;
+}
+
+.sectionTitle {
+  padding: $spacing-md $page-padding;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.evaluationPreview {
+  background: $color-bg-card;
+  margin: 0 $page-padding $spacing-md;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.evalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.evalTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.evalIcon {
+  margin-right: $spacing-xs;
+}
+
+.evalAll {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.evalScoreRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.evalScoreItem {
+  flex: 1;
+  text-align: center;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
+}
+
+.evalScore {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.evalScoreLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

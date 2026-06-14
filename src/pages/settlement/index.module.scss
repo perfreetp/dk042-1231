@@ -1,0 +1,273 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.balanceSection {
+  background: $color-primary-gradient;
+  padding: $spacing-xl * 1.5 $page-padding $spacing-xl * 2;
+  padding-top: calc(#{$spacing-xl * 1.5} + env(safe-area-inset-top));
+  color: $color-text-white;
+  position: relative;
+}
+
+.balanceLabel {
+  font-size: $font-size-sm;
+  opacity: 0.85;
+  margin-bottom: $spacing-xs;
+}
+
+.balanceAmount {
+  font-size: 80rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1.1;
+  letter-spacing: -2rpx;
+}
+
+.balanceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $spacing-lg;
+}
+
+.balanceInfo {
+  display: flex;
+  gap: $spacing-xl;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+  margin-bottom: 4rpx;
+}
+
+.infoValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.withdrawBtn {
+  background: $color-text-white;
+  color: $color-primary;
+  padding: $spacing-sm $spacing-xl;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+}
+
+.section {
+  background: $color-bg-card;
+  margin: -$spacing-lg $page-padding $spacing-md;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  position: relative;
+  z-index: 5;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitleText {
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  margin-right: $spacing-xs;
+  font-size: $font-size-xl;
+}
+
+.moreLink {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-normal;
+}
+
+.deductionCard {
+  background: linear-gradient(135deg, #FFF5F0 0%, #FFFFFF 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  border: 1rpx solid rgba(255, 107, 53, 0.1);
+}
+
+.deductionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-xs 0;
+
+  &:not(:last-child) {
+    border-bottom: 1rpx dashed $color-divider;
+  }
+}
+
+.deductionLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.deductionAmount {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  &.positive {
+    color: $color-success;
+  }
+
+  &.negative {
+    color: $color-error;
+  }
+}
+
+.settlementList {
+  padding: 0;
+}
+
+.settlementItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.settlementHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-xs;
+}
+
+.settlementJob {
+  flex: 1;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-right: $spacing-sm;
+  @include text-ellipsis;
+}
+
+.settlementStatus {
+  font-size: $font-size-xs;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-xs;
+  flex-shrink: 0;
+
+  &.pending {
+    background: $color-warning-light;
+    color: $color-warning;
+  }
+
+  &.paid {
+    background: $color-success-light;
+    color: $color-success;
+  }
+}
+
+.settlementMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.settlementDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.settlementNet {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-salary;
+}
+
+.settlementDetail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.detailTag {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  background: $color-bg-hover;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.withdrawSection {
+  margin-top: $spacing-md;
+}
+
+.withdrawItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.withdrawLeft {
+  flex: 1;
+}
+
+.withdrawMethod {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.withdrawDate {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.withdrawRight {
+  text-align: right;
+}
+
+.withdrawAmount {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.withdrawStatus {
+  font-size: $font-size-xs;
+
+  &.pending { color: $color-warning; }
+  &.success { color: $color-success; }
+  &.failed { color: $color-error; }
+}

@@ -1,0 +1,49 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+
+  &.sm {
+    padding: 4rpx 16rpx;
+    border-radius: $radius-sm;
+  }
+
+  &.md {
+    padding: 8rpx 20rpx;
+    border-radius: $radius-sm;
+  }
+
+  .text {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    line-height: 1.4;
+  }
+
+  &.default {
+    background: $color-bg-tag;
+    .text { color: $color-primary; }
+  }
+
+  &.primary {
+    background: $color-primary-gradient;
+    .text { color: $color-text-white; }
+  }
+
+  &.success {
+    background: $color-success-light;
+    .text { color: $color-success; }
+  }
+
+  &.warning {
+    background: $color-warning-light;
+    .text { color: $color-warning; }
+  }
+
+  &.info {
+    background: $color-info-light;
+    .text { color: $color-info; }
+  }
+}

@@ -1,0 +1,162 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    opacity: 0.95;
+  }
+}
+
+.header {
+  margin-bottom: $spacing-md;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.title {
+  flex: 1;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: 1.4;
+  @include text-ellipsis;
+}
+
+.favorite {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  margin-left: $spacing-sm;
+}
+
+.favorited {
+  color: $color-warning;
+}
+
+.notFavorite {
+  color: $color-text-tertiary;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.type {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.salaryRow {
+  display: flex;
+  align-items: baseline;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.salary {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-salary;
+  line-height: 1;
+}
+
+.salaryUnit {
+  font-size: $font-size-sm;
+  color: $color-text-salary;
+  margin-left: 4rpx;
+  margin-right: $spacing-md;
+}
+
+.salaryNote {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.shiftRow {
+  margin-bottom: $spacing-md;
+}
+
+.shiftItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.shiftLabel {
+  width: 40rpx;
+  font-size: $font-size-md;
+}
+
+.shiftText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.footer {
+  position: relative;
+}
+
+.merchant {
+  display: flex;
+  align-items: center;
+}
+
+.merchantAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  background: $color-bg-hover;
+}
+
+.merchantInfo {
+  flex: 1;
+  margin-left: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+}
+
+.merchantName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis;
+}
+
+.progress {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.progressBar {
+  height: 6rpx;
+  border-radius: $radius-round;
+  margin-top: $spacing-sm;
+}

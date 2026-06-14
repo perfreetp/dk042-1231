@@ -1,0 +1,291 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 200rpx;
+}
+
+.balanceCard {
+  margin: $spacing-lg;
+  padding: $spacing-xl $spacing-lg;
+  background: $color-primary-gradient;
+  border-radius: $radius-lg;
+  color: $color-text-white;
+  box-shadow: $shadow-card;
+}
+
+.balanceLabel {
+  display: block;
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  margin-bottom: $spacing-sm;
+}
+
+.balanceAmount {
+  display: block;
+  font-size: 80rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+  margin-bottom: $spacing-md;
+}
+
+.balanceTips {
+  font-size: $font-size-xs;
+  opacity: 0.85;
+}
+
+.section {
+  margin: 0 $spacing-lg $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+
+  &Text {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+}
+
+.amountSection {
+  .inputRow {
+    display: flex;
+    align-items: center;
+    padding: $spacing-lg 0;
+    border-bottom: 1rpx solid $color-divider;
+  }
+
+  .currencySymbol {
+    font-size: 56rpx;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    margin-right: $spacing-sm;
+  }
+
+  .amountInput {
+    flex: 1;
+    font-size: 56rpx;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    line-height: 1.2;
+  }
+
+  .allBtn {
+    padding: $spacing-xs $spacing-md;
+    background: $color-bg-tag;
+    color: $color-primary;
+    font-size: $font-size-sm;
+    border-radius: $radius-button;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.quickAmounts {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+  flex-wrap: wrap;
+}
+
+.quickItem {
+  flex: 1;
+  min-width: 30%;
+  padding: $spacing-md 0;
+  text-align: center;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  &.active {
+    background: $color-bg-tag;
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.methodList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.methodItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+
+  &.active {
+    border-color: $color-primary;
+    background: $color-bg-tag;
+  }
+}
+
+.methodIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-right: $spacing-md;
+}
+
+.wechatIcon { background: #07C160; }
+.alipayIcon { background: #1677FF; }
+.bankIcon { background: #86909C; }
+
+.methodInfo {
+  flex: 1;
+
+  .methodName {
+    display: block;
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+    margin-bottom: $spacing-xs;
+  }
+
+  .methodDesc {
+    display: block;
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+  }
+}
+
+.radioDot {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  border: 2rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.active {
+    border-color: $color-primary;
+
+    &::after {
+      content: '';
+      width: 24rpx;
+      height: 24rpx;
+      border-radius: $radius-round;
+      background: $color-primary;
+    }
+  }
+}
+
+.feeTip {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md;
+  background: $color-warning-light;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+
+  .tipIcon {
+    font-size: $font-size-lg;
+    margin-right: $spacing-sm;
+  }
+
+  .tipText {
+    flex: 1;
+    font-size: $font-size-xs;
+    color: $color-warning;
+    line-height: $line-height-loose;
+  }
+}
+
+.withdrawRecord {
+  .recordItem {
+    padding: $spacing-md 0;
+    border-bottom: 1rpx solid $color-divider;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .recordHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-xs;
+  }
+
+  .recordMethod {
+    font-size: $font-size-md;
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+  }
+
+  .recordAmount {
+    font-size: $font-size-md;
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+
+  .recordMeta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .recordTime {
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+  }
+
+  .recordStatus {
+    font-size: $font-size-xs;
+
+    &.pending { color: $color-warning; }
+    &.success { color: $color-success; }
+    &.failed { color: $color-error; }
+  }
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $spacing-lg calc($spacing-md + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.submitBtn {
+  flex: 1;
+  height: $button-height-lg;
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(255, 107, 53, 0.35);
+
+  &.disabled {
+    background: $color-text-disabled;
+    box-shadow: none;
+  }
+}

@@ -1,0 +1,218 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 40rpx;
+}
+
+.headerCard {
+  background: $color-primary-gradient;
+  padding: $spacing-lg $page-padding $spacing-xl * 1.5;
+  padding-top: calc(#{$spacing-lg} + env(safe-area-inset-top));
+  color: $color-text-white;
+}
+
+.jobTitle {
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-sm;
+  @include text-ellipsis;
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-xl;
+  opacity: 0.95;
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+}
+
+.statNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-right: 4rpx;
+}
+
+.statLabel {
+  font-size: $font-size-sm;
+  opacity: 0.85;
+}
+
+.tabs {
+  display: flex;
+  background: $color-bg-card;
+  margin: -$spacing-lg $page-padding $spacing-md;
+  border-radius: $radius-lg;
+  padding: $spacing-xs;
+  box-shadow: $shadow-float;
+  position: relative;
+  z-index: 5;
+}
+
+.tabItem {
+  flex: 1;
+  padding: $spacing-sm 0;
+  text-align: center;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+  font-weight: $font-weight-medium;
+  position: relative;
+
+  &.active {
+    background: $color-primary-gradient;
+    color: $color-text-white;
+    box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.3);
+  }
+}
+
+.tabBadge {
+  position: absolute;
+  top: 4rpx;
+  right: 20%;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  padding: 0 8rpx;
+  background: $color-error;
+  color: $color-text-white;
+  font-size: 20rpx;
+  border-radius: $radius-round;
+  text-align: center;
+  font-weight: $font-weight-bold;
+}
+
+.list {
+  padding: 0 $page-padding;
+}
+
+.applicantCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.applicantHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  background: $color-bg-hover;
+  flex-shrink: 0;
+}
+
+.applicantInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.statusTag {
+  font-size: $font-size-xs;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-button;
+  flex-shrink: 0;
+  font-weight: $font-weight-medium;
+
+  &.pending {
+    background: $color-warning-light;
+    color: $color-warning;
+  }
+  &.approved {
+    background: $color-success-light;
+    color: $color-success;
+  }
+  &.rejected {
+    background: $color-error-light;
+    color: $color-error;
+  }
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.applyTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+}
+
+.message {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  border-left: 4rpx solid $color-primary;
+}
+
+.actionRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.actionBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}
+
+.btnReject {
+  background: $color-bg-page;
+  color: $color-text-secondary;
+}
+
+.btnApprove {
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 53, 0.25);
+}
+
+.btnDetail {
+  background: $color-bg-page;
+  color: $color-primary;
+}

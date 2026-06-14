@@ -1,0 +1,168 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    opacity: 0.95;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.left {
+  flex: 1;
+  margin-right: $spacing-sm;
+}
+
+.title {
+  display: block;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+}
+
+.type {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: $color-bg-tag;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.dot {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin: 0 8rpx;
+}
+
+.merchant {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.body {
+  margin-bottom: $spacing-md;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  width: 40rpx;
+  font-size: $font-size-md;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.date {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.time {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.address {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis;
+}
+
+.checkInfo {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.checkText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.salaryBox {
+  display: flex;
+  align-items: baseline;
+}
+
+.salaryLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-right: $spacing-xs;
+}
+
+.salary {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-salary;
+}
+
+.actionBtn {
+  background: $color-primary-gradient;
+  padding: 12rpx 32rpx;
+  border-radius: $radius-button;
+}
+
+.actionText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-white;
+}
+
+.appealBtn {
+  background: transparent;
+  border: 1rpx solid $color-primary;
+}
+
+.appealText {
+  color: $color-primary;
+}

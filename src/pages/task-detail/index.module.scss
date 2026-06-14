@@ -1,0 +1,288 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 200rpx;
+}
+
+.statusHeader {
+  padding: $spacing-xl $page-padding $spacing-xl * 2;
+  padding-top: calc(#{$spacing-xl} + env(safe-area-inset-top));
+  color: $color-text-white;
+  text-align: center;
+
+  &.pending { background: linear-gradient(135deg, #3498DB 0%, #5DADE2 100%); }
+  &.ongoing { background: $color-primary-gradient; }
+  &.completed { background: linear-gradient(135deg, #FF7D00 0%, #FFA94D 100%); }
+  &.settled { background: linear-gradient(135deg, #2ECC71 0%, #58D68D 100%); }
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 8rpx 28rpx;
+  background: rgba(255,255,255,0.2);
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-md;
+  backdrop-filter: blur(10rpx);
+}
+
+.statusTitle {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.statusDesc {
+  font-size: $font-size-sm;
+  opacity: 0.85;
+}
+
+.card {
+  background: $color-bg-card;
+  margin: 0 $page-padding $spacing-md;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  margin-top: -$spacing-lg;
+  position: relative;
+  z-index: 5;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  margin-right: $spacing-xs;
+  font-size: $font-size-xl;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+  width: 180rpx;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  flex: 1;
+  text-align: right;
+  line-height: 1.5;
+
+  &.highlight {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+  &.success {
+    color: $color-success;
+    font-weight: $font-weight-semibold;
+  }
+  &.warning {
+    color: $color-warning;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.timeline {
+  position: relative;
+  padding-left: $spacing-lg;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 14rpx;
+  top: 8rpx;
+  bottom: 8rpx;
+  width: 2rpx;
+  background: $color-divider;
+}
+
+.timelineItem {
+  position: relative;
+  padding-bottom: $spacing-md;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.timelineDot {
+  position: absolute;
+  left: -40rpx;
+  top: 4rpx;
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: $radius-round;
+  background: $color-bg-card;
+  border: 4rpx solid $color-primary;
+}
+
+.timelineDot.active {
+  background: $color-primary;
+  box-shadow: 0 0 0 6rpx rgba(255, 107, 53, 0.2);
+}
+
+.timelineDot.done {
+  background: $color-success;
+  border-color: $color-success;
+}
+
+.timelineTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.timelineTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.timelineDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-top: 4rpx;
+}
+
+.actionGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.actionItem {
+  flex: 1;
+  min-width: 45%;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all $transition-base;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.actionItemIcon {
+  font-size: 48rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.actionItemLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.salaryBox {
+  background: linear-gradient(135deg, #FFF5F0 0%, #FFFFFF 100%);
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  border: 1rpx solid rgba(255, 107, 53, 0.1);
+}
+
+.salaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-xs 0;
+
+  &.total {
+    margin-top: $spacing-sm;
+    padding-top: $spacing-md;
+    border-top: 1rpx dashed $color-border;
+  }
+}
+
+.salaryLeft {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.salaryRight {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+
+  &.positive { color: $color-success; }
+  &.negative { color: $color-error; }
+  &.total {
+    font-size: $font-size-lg;
+    color: $color-text-salary;
+    font-weight: $font-weight-bold;
+  }
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.btn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.btnSecondary {
+  background: $color-bg-page;
+  color: $color-text-secondary;
+}
+
+.btnPrimary {
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 53, 0.3);
+}
+
+.btnSuccess {
+  background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+  color: $color-text-white;
+}

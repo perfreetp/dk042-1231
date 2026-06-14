@@ -1,0 +1,375 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: $spacing-xl;
+}
+
+.header {
+  background: $color-primary-gradient;
+  padding: $spacing-lg $spacing-lg $spacing-xl * 1.5;
+  color: $color-text-white;
+  margin-bottom: -$spacing-xl;
+}
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-sm;
+
+  .titleIcon {
+    margin-right: $spacing-sm;
+  }
+}
+
+.headerDesc {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  line-height: $line-height-normal;
+}
+
+.statBar {
+  display: flex;
+  margin: 0 $spacing-lg $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-lg;
+  box-shadow: $shadow-card;
+  position: relative;
+  z-index: 2;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+  position: relative;
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rpx;
+    height: 48rpx;
+    background: $color-divider;
+  }
+}
+
+.statNum {
+  display: block;
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1.2;
+  margin-bottom: $spacing-xs;
+}
+
+.statLabel {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.sortSection {
+  margin: 0 $spacing-lg $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sortLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+
+  .sortTitle {
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-right: $spacing-xs;
+  }
+}
+
+.sortBtns {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.sortBtn {
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  background: $color-bg-card;
+  border-radius: $radius-button;
+  border: 1rpx solid transparent;
+  transition: all $transition-fast;
+
+  &.active {
+    color: $color-primary;
+    border-color: $color-primary;
+    background: $color-bg-tag;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.jobList {
+  padding: 0 $spacing-lg;
+}
+
+.jobCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  position: relative;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.removeBtn {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+
+  .icon {
+    font-size: 36rpx;
+    color: $color-text-tertiary;
+    transition: all $transition-fast;
+  }
+
+  &:active .icon {
+    color: $color-error;
+    transform: scale(1.2);
+  }
+}
+
+.jobHeader {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+  padding-right: 64rpx;
+}
+
+.jobInfo {
+  flex: 1;
+}
+
+.jobTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.jobSubMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.subMetaItem {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+
+  .icon {
+    margin-right: 6rpx;
+  }
+}
+
+.jobBody {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.salaryBlock {
+  .salaryValue {
+    font-size: 52rpx;
+    font-weight: $font-weight-bold;
+    color: $color-primary;
+    line-height: 1;
+  }
+
+  .salaryUnit {
+    font-size: $font-size-sm;
+    color: $color-text-tertiary;
+    margin-left: $spacing-xs;
+    font-weight: $font-weight-normal;
+  }
+}
+
+.jobMeta {
+  flex: 1;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.metaLine {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+
+  .highlight {
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-md;
+}
+
+.jobTag {
+  padding: 6rpx $spacing-sm;
+  background: $color-bg-tag;
+  color: $color-primary;
+  font-size: $font-size-xs;
+  border-radius: $radius-xs;
+}
+
+.merchantRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.merchantAvatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+  background: $color-bg-hover;
+  overflow: hidden;
+
+  &Img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.merchantInfo {
+  flex: 1;
+
+  .name {
+    display: block;
+    font-size: $font-size-sm;
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+    margin-bottom: 4rpx;
+  }
+
+  .addr {
+    display: block;
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+    @include text-ellipsis;
+  }
+}
+
+.statusBadge {
+  padding: 6rpx $spacing-sm;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  &.recruiting {
+    background: $color-success-light;
+    color: $color-success;
+  }
+
+  &.full {
+    background: $color-warning-light;
+    color: $color-warning;
+  }
+
+  &.closed {
+    background: $color-bg-hover;
+    color: $color-text-tertiary;
+  }
+}
+
+.jobFooter {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.footerBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+
+  &.secondary {
+    background: $color-bg-hover;
+    color: $color-text-secondary;
+    border: none;
+  }
+
+  &.primary {
+    background: $color-primary-gradient;
+    color: $color-text-white;
+    font-weight: $font-weight-semibold;
+    box-shadow: 0 4rpx 14rpx rgba(255, 107, 53, 0.3);
+
+    &.disabled {
+      background: $color-text-disabled;
+      box-shadow: none;
+    }
+  }
+}
+
+.emptyTips {
+  margin: $spacing-xl $spacing-lg;
+  padding: $spacing-xl $spacing-lg;
+  background: $color-info-light;
+  border-radius: $radius-lg;
+  text-align: center;
+
+  .tipsIcon {
+    font-size: 72rpx;
+    margin-bottom: $spacing-md;
+  }
+
+  .tipsTitle {
+    display: block;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-info;
+    margin-bottom: $spacing-xs;
+  }
+
+  .tipsDesc {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-normal;
+  }
+}
