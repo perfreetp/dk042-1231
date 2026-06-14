@@ -3,7 +3,6 @@ import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { useStore } from '@/store/useStore';
-import { mockJobs } from '@/data/jobs';
 import JobCard from '@/components/JobCard';
 import EmptyState from '@/components/EmptyState';
 import type { JobType } from '@/types';
@@ -12,14 +11,16 @@ import styles from './index.module.scss';
 const JOB_TYPES: (JobType | '全部')[] = ['全部', '餐饮', '会展', '仓储', '物流', '零售', '保洁', '安保', '其他'];
 
 const HomePage: React.FC = () => {
-  const { currentRole, setRole } = useStore();
+  const { currentRole, setRole, jobs } = useStore();
   const [searchText, setSearchText] = useState('');
   const [activeType, setActiveType] = useState<JobType | '全部'>('全部');
   const [activeSort, setActiveSort] = useState<string>('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useDidShow(() => {
     console.log('[HomePage] page show, role:', currentRole);
+    setRefreshKey(k => k + 1);
   });
 
   const toggleRole = () => {
@@ -32,7 +33,7 @@ const HomePage: React.FC = () => {
   };
 
   const filteredJobs = useMemo(() => {
-    let list = [...mockJobs];
+    let list = [...jobs];
     if (activeType !== '全部') {
       list = list.filter(j => j.type === activeType);
     }
@@ -52,7 +53,7 @@ const HomePage: React.FC = () => {
       list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
     return list;
-  }, [activeType, searchText, activeSort]);
+  }, [jobs, activeType, searchText, activeSort, refreshKey]);
 
   const onRefresh = () => {
     setIsRefreshing(true);

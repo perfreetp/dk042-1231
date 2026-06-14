@@ -33,7 +33,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           type={
             task.status === 'pending' ? 'info' :
             task.status === 'ongoing' ? 'primary' :
-            task.status === 'completed' ? 'warning' : 'success'
+            task.status === 'completed' ? 'warning' :
+            task.status === 'leave' ? 'warning' :
+            task.status === 'appeal' ? 'danger' : 'success'
           }
           size="md"
         />

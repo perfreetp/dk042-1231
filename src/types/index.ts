@@ -4,7 +4,7 @@ export type JobType = '餐饮' | '会展' | '仓储' | '物流' | '零售' | '�
 
 export type JobStatus = 'recruiting' | 'full' | 'closed';
 
-export type TaskStatus = 'pending' | 'ongoing' | 'completed' | 'settled';
+export type TaskStatus = 'pending' | 'ongoing' | 'completed' | 'settled' | 'leave' | 'appeal';
 
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
@@ -75,7 +75,9 @@ export interface Task {
   checkOutTime?: string;
   actualHours?: number;
   leaveApplied?: boolean;
+  leaveReason?: string;
   appealStatus?: 'none' | 'pending' | 'resolved';
+  appealReason?: string;
 }
 
 export interface SettlementItem {

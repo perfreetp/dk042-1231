@@ -46,4 +46,9 @@
     background: $color-info-light;
     .text { color: $color-info; }
   }
+
+  &.danger {
+    background: rgba(245, 63, 63, 0.1);
+    .text { color: #F53F3F; }
+  }
 }

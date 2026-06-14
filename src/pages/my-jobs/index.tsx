@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
-import { mockJobs } from '@/data/jobs';
-import { mockApplications } from '@/data/tasks';
+import { useStore } from '@/store/useStore';
 import { formatCurrency, getStatusText } from '@/utils';
 import EmptyState from '@/components/EmptyState';
-import type { Job, JobStatus } from '@/types';
+import type { JobStatus } from '@/types';
 import styles from './index.module.scss';
 
 type FilterType = 'all' | JobStatus;
@@ -18,48 +17,60 @@ const FILTERS: { key: FilterType; label: string }[] = [
 ];
 
 const MyJobsPage: React.FC = () => {
+  const getMyJobs = useStore(s => s.getMyJobs);
+  const getApplicationsByJobId = useStore(s => s.getApplicationsByJobId);
+
   const [filter, setFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useDidShow(() => {
     console.log('[MyJobs] did show');
+    setRefreshKey(k => k + 1);
   });
 
+  const myJobs = useMemo(() => getMyJobs(), [getMyJobs, refreshKey]);
+
   const stats = useMemo(() => {
-    const recruiting = mockJobs.filter(j => j.status === 'recruiting').length;
-    const pending = mockApplications.filter(a => a.status === 'pending').length;
-    const total = mockJobs.reduce((sum, j) => sum + j.headcount, 0);
+    const recruiting = myJobs.filter(j => j.status === 'recruiting').length;
+    let pending = 0;
+    let total = 0;
+    myJobs.forEach(j => {
+      const apps = getApplicationsByJobId(j.id);
+      pending += apps.filter(a => a.status === 'pending').length;
+      total += j.headcount;
+    });
     return { recruiting, pending, total };
-  }, []);
+  }, [myJobs, getApplicationsByJobId]);
 
   const filteredJobs = useMemo(() => {
-    let list = [...mockJobs];
+    let list = [...myJobs];
     if (filter !== 'all') {
       list = list.filter(j => j.status === filter);
     }
     return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [filter]);
+  }, [myJobs, filter]);
 
   const pendingCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    mockApplications
-      .filter(a => a.status === 'pending')
-      .forEach(a => {
-        counts[a.jobId] = (counts[a.jobId] || 0) + 1;
-      });
+    myJobs.forEach(j => {
+      const apps = getApplicationsByJobId(j.id);
+      counts[j.id] = apps.filter(a => a.status === 'pending').length;
+    });
     return counts;
-  }, []);
+  }, [myJobs, getApplicationsByJobId]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 800));
+    setRefreshKey(k => k + 1);
     setRefreshing(false);
     Taro.stopPullDownRefresh();
     Taro.showToast({ title: '刷新成功', icon: 'none' });
   };
 
   const goAudit = (jobId: string) => {
-    Taro.navigateTo({ url: `/pages/audit-applicants/index?id=${jobId}` });
+    Taro.navigateTo({ url: `/pages/audit-applicants/index?jobId=${jobId}` });
   };
 
   const goDetail = (jobId: string) => {
@@ -70,10 +81,10 @@ const MyJobsPage: React.FC = () => {
     Taro.navigateTo({ url: '/pages/publish-job/index' });
   };
 
-  const handleClose = (job: Job) => {
+  const handleClose = (jobId: string) => {
     Taro.showModal({
       title: '确认关闭',
-      content: `确定要关闭「${job.title}」吗？关闭后将不再接收新报名。`,
+      content: '确定要关闭该岗位吗？关闭后将不再接收新报名。',
       confirmText: '确认关闭',
       confirmColor: '#F53F3F',
       success: (res) => {
@@ -84,8 +95,8 @@ const MyJobsPage: React.FC = () => {
     });
   };
 
-  const handleEdit = (job: Job) => {
-    Taro.showToast({ title: `编辑「${job.title}」`, icon: 'none' });
+  const handleEdit = (jobId: string) => {
+    Taro.showToast({ title: '编辑功能开发中', icon: 'none' });
   };
 
   return (
@@ -207,7 +218,7 @@ const MyJobsPage: React.FC = () => {
                   {job.status !== 'closed' && (
                     <View
                       className={[styles.actionBtn, styles.outline].join(' ')}
-                      onClick={() => handleEdit(job)}
+                      onClick={() => handleEdit(job.id)}
                     >
                       编辑
                     </View>
@@ -219,7 +230,7 @@ const MyJobsPage: React.FC = () => {
                         if (pendingCount > 0 || job.appliedCount > 0) {
                           goAudit(job.id);
                         } else {
-                          handleClose(job);
+                          handleClose(job.id);
                         }
                       } else {
                         goAudit(job.id);

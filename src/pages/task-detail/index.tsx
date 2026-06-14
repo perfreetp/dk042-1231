@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
-import { mockTasks } from '@/data/tasks';
+import { useStore } from '@/store/useStore';
 import { formatCurrency, getStatusText } from '@/utils';
 import type { Task } from '@/types';
 import styles from './index.module.scss';
@@ -10,14 +10,30 @@ import styles from './index.module.scss';
 const TaskDetailPage: React.FC = () => {
   const router = useRouter();
   const taskId = router.params.id || 'task_002';
+  const { tasks, checkInTask, checkOutTask, applyLeave, confirmTaskHours, submitAppeal } = useStore();
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const task: Task = useMemo(() => {
-    return mockTasks.find(t => t.id === taskId) || mockTasks[1];
-  }, [taskId]);
+  useDidShow(() => {
+    setRefreshKey(k => k + 1);
+  });
+
+  const task: Task | undefined = useMemo(() => {
+    return tasks.find(t => t.id === taskId);
+  }, [tasks, taskId, refreshKey]);
+
+  if (!task) {
+    return (
+      <View className={styles.page}>
+        <View className={styles.card}>
+          <Text className={styles.sectionTitle}>任务不存在</Text>
+        </View>
+      </View>
+    );
+  }
 
   const estimatedSalary = task.hourlyRate * (task.actualHours || task.estimatedHours);
-  const deductions = task.id === 'task_005' ? [{ label: '迟到扣款', amount: 11 }] : [];
-  const bonuses = [];
+  const deductions: { label: string; amount: number }[] = [];
+  const bonuses: { label: string; amount: number }[] = [];
   const netSalary = estimatedSalary - deductions.reduce((s, d) => s + d.amount, 0) + bonuses.reduce((s, b) => s + b.amount, 0);
 
   const statusDescriptions: Record<string, { desc: string; actions: string[] }> = {
@@ -36,26 +52,116 @@ const TaskDetailPage: React.FC = () => {
     settled: {
       desc: '工资已结算，期待继续合作！',
       actions: ['查看评价', '再次报名', '联系商家']
+    },
+    leave: {
+      desc: '请假申请已提交，等待商家审核',
+      actions: ['取消请假', '联系商家']
+    },
+    appeal: {
+      desc: '申诉处理中，请耐心等待审核结果',
+      actions: ['查看申诉', '联系商家']
     }
   };
 
   const statusInfo = statusDescriptions[task.status] || statusDescriptions.pending;
 
+  const handleCheckIn = () => {
+    Taro.showModal({
+      title: '确认签到',
+      content: `确定要签到「${task.jobTitle}」吗？\n当前时间将作为开始时间`,
+      confirmText: '确认签到',
+      confirmColor: '#2ECC71',
+      success: (r) => {
+        if (r.confirm) {
+          checkInTask(task.id);
+          setRefreshKey(k => k + 1);
+          Taro.showToast({ title: '签到成功', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleCheckOut = () => {
+    Taro.showModal({
+      title: '确认签退',
+      content: `确定要签退「${task.jobTitle}」吗？\n当前时间将作为结束时间`,
+      confirmText: '确认签退',
+      confirmColor: '#FF6B35',
+      success: (r) => {
+        if (r.confirm) {
+          checkOutTask(task.id);
+          setRefreshKey(k => k + 1);
+          Taro.showToast({ title: '签退成功', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleLeave = () => {
+    Taro.showModal({
+      title: '请假申请',
+      content: `确定要向「${task.jobTitle}」申请请假吗？\n申请后商家会进行审核`,
+      confirmText: '确认申请',
+      confirmColor: '#FF7D00',
+      success: (r) => {
+        if (r.confirm) {
+          applyLeave(task.id, '临时有事');
+          setRefreshKey(k => k + 1);
+          Taro.showToast({ title: '请假申请已提交', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleConfirmHours = () => {
+    const hours = task.actualHours || task.estimatedHours;
+    Taro.showModal({
+      title: '确认工时',
+      content: `「${task.jobTitle}」\n预计工时：${task.estimatedHours}小时\n实际工时：${hours}小时\n确认无误后提交？`,
+      confirmText: '确认无误',
+      confirmColor: '#2ECC71',
+      success: (r) => {
+        if (r.confirm) {
+          confirmTaskHours(task.id, hours);
+          setRefreshKey(k => k + 1);
+          Taro.showToast({ title: '工时已确认，等待结算', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleAppeal = () => {
+    Taro.showModal({
+      title: '异常申诉',
+      content: '请描述您的申诉内容，我们会尽快核实处理：\n（示例：工时不对、考勤异常、薪资问题等）',
+      confirmText: '提交申诉',
+      confirmColor: '#FF6B35',
+      success: (r) => {
+        if (r.confirm) {
+          submitAppeal(task.id, '工时计算有误');
+          setRefreshKey(k => k + 1);
+          Taro.showToast({ title: '申诉已提交，等待处理', icon: 'none' });
+        }
+      }
+    });
+  };
+
   const handleAction = (action: string) => {
-    console.log('[TaskDetail] action:', action);
     switch (action) {
       case '扫码签到':
+        handleCheckIn();
+        break;
       case '扫码签退':
-        Taro.showToast({ title: `${action}功能（扫描商家二维码）`, icon: 'none' });
+        handleCheckOut();
         break;
       case '请假申请':
-        Taro.showModal({
-          title: '请假申请',
-          content: '请至少提前2小时请假，紧急情况请电话联系商家负责人',
-          confirmText: '我已知晓',
-          showCancel: true,
-          cancelText: '取消请假'
-        });
+        handleLeave();
+        break;
+      case '确认工时':
+        handleConfirmHours();
+        break;
+      case '异常申诉':
+        handleAppeal();
         break;
       case '联系商家':
         Taro.showModal({
@@ -69,31 +175,23 @@ const TaskDetailPage: React.FC = () => {
           }
         });
         break;
-      case '确认工时':
-        Taro.showModal({
-          title: '确认工时',
-          content: `确认以下工时无误吗？\n实际工时：${task.actualHours || task.estimatedHours}小时\n预计收入：${formatCurrency(netSalary)}`,
-          confirmText: '确认无误',
-          confirmColor: '#2ECC71',
-          success: (res) => {
-            if (res.confirm) {
-              Taro.showToast({ title: '已确认工时', icon: 'success' });
-            }
-          }
-        });
-        break;
-      case '异常申诉':
-        Taro.navigateTo({
-          url: '/pages/evaluation/index?mode=appeal'
-        }).catch(() => {
-          Taro.showToast({ title: '申诉功能开发中', icon: 'none' });
-        });
-        break;
       case '去评价':
       case '查看评价':
         Taro.navigateTo({
           url: `/pages/evaluation/index?taskId=${task.id}`
         }).catch(() => {});
+        break;
+      case '工时记录':
+        Taro.showToast({ title: '工时记录功能', icon: 'none' });
+        break;
+      case '取消请假':
+        Taro.showToast({ title: '取消请假功能', icon: 'none' });
+        break;
+      case '查看申诉':
+        Taro.showToast({ title: '查看申诉功能', icon: 'none' });
+        break;
+      case '再次报名':
+        Taro.switchTab({ url: '/pages/home/index' });
         break;
       default:
         Taro.showToast({ title: `${action}功能`, icon: 'none' });
@@ -101,7 +199,7 @@ const TaskDetailPage: React.FC = () => {
   };
 
   const renderTimeline = () => {
-    const items = [];
+    const items: { dot: string; title: string; time: string; desc: string }[] = [];
     items.push({
       dot: 'done',
       title: '报名成功',
@@ -122,6 +220,22 @@ const TaskDetailPage: React.FC = () => {
         title: '工作进行中',
         time: '进行中...',
         desc: '记得签退哦'
+      });
+    }
+    if (task.status === 'leave') {
+      items.push({
+        dot: 'active',
+        title: '请假申请中',
+        time: '等待审核',
+        desc: '商家审核中，请耐心等待'
+      });
+    }
+    if (task.status === 'appeal') {
+      items.push({
+        dot: 'active',
+        title: '申诉处理中',
+        time: '等待处理',
+        desc: '申诉审核中，预计1-2个工作日'
       });
     }
     if (task.checkOutTime || task.status === 'completed' || task.status === 'settled') {
@@ -181,6 +295,24 @@ const TaskDetailPage: React.FC = () => {
           <View className={styles.infoRow}>
             <Text className={styles.infoLabel}>实际工时</Text>
             <Text className={[styles.infoValue, styles.success].join(' ')}>{task.actualHours} 小时</Text>
+          </View>
+        )}
+        {task.checkInTime && (
+          <View className={styles.infoRow}>
+            <Text className={styles.infoLabel}>签到时间</Text>
+            <Text className={[styles.infoValue, styles.success].join(' ')}>{task.checkInTime}</Text>
+          </View>
+        )}
+        {task.checkOutTime && (
+          <View className={styles.infoRow}>
+            <Text className={styles.infoLabel}>签退时间</Text>
+            <Text className={[styles.infoValue, styles.highlight].join(' ')}>{task.checkOutTime}</Text>
+          </View>
+        )}
+        {task.appealReason && (
+          <View className={styles.infoRow}>
+            <Text className={styles.infoLabel}>申诉内容</Text>
+            <Text className={[styles.infoValue, styles.warning].join(' ')}>{task.appealReason}</Text>
           </View>
         )}
         <View className={styles.infoRow}>
@@ -283,7 +415,7 @@ const TaskDetailPage: React.FC = () => {
         {task.status === 'pending' && (
           <View
             className={classnames(styles.btn, styles.btnSuccess)}
-            onClick={() => handleAction('扫码签到')}
+            onClick={handleCheckIn}
           >
             📱 扫码签到
           </View>
@@ -291,7 +423,7 @@ const TaskDetailPage: React.FC = () => {
         {task.status === 'ongoing' && (
           <View
             className={classnames(styles.btn, styles.btnSuccess)}
-            onClick={() => handleAction('扫码签退')}
+            onClick={handleCheckOut}
           >
             ✅ 扫码签退
           </View>
@@ -300,17 +432,33 @@ const TaskDetailPage: React.FC = () => {
           <>
             <View
               className={classnames(styles.btn, styles.btnSecondary)}
-              onClick={() => handleAction('异常申诉')}
+              onClick={handleAppeal}
             >
               申诉
             </View>
             <View
               className={classnames(styles.btn, styles.btnPrimary)}
-              onClick={() => handleAction('确认工时')}
+              onClick={handleConfirmHours}
             >
               确认工时
             </View>
           </>
+        )}
+        {task.status === 'appeal' && (
+          <View
+            className={classnames(styles.btn, styles.btnSecondary)}
+            onClick={() => Taro.showToast({ title: '申诉处理中', icon: 'none' })}
+          >
+            ⚠️ 申诉处理中
+          </View>
+        )}
+        {task.status === 'leave' && (
+          <View
+            className={classnames(styles.btn, styles.btnSecondary)}
+            onClick={() => Taro.showToast({ title: '请假审核中', icon: 'none' })}
+          >
+            📝 请假审核中
+          </View>
         )}
         {task.status === 'settled' && (
           <View

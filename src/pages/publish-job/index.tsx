@@ -2,13 +2,24 @@ import React, { useState } from 'react';
 import { View, Text, Input, Textarea } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
+import { useStore } from '@/store/useStore';
+import { calculateShiftHours } from '@/store/useStore';
 import type { JobType, JobShift } from '@/types';
 import styles from './index.module.scss';
 
 const JOB_TYPES: JobType[] = ['餐饮', '会展', '仓储', '物流', '零售', '保洁', '安保', '其他'];
 const AVAILABLE_TAGS = ['日结', '周结', '月结', '包吃', '包住', '急招', '长期', '周末', '夜班', '轻松', '高薪'];
 
+const MOCK_LOCATIONS = [
+  { address: '北京市朝阳区朝阳大悦城', latitude: 39.9271, longitude: 116.5187, distance: '1.2km' },
+  { address: '北京市海淀区中关村软件园', latitude: 40.0499, longitude: 116.2854, distance: '8.5km' },
+  { address: '北京市大兴区亦庄经济开发区', latitude: 39.7817, longitude: 116.5047, distance: '12.3km' },
+  { address: '北京市朝阳区三里屯太古里', latitude: 39.9384, longitude: 116.4546, distance: '2.8km' }
+];
+
 const PublishJobPage: React.FC = () => {
+  const addJob = useStore(s => s.addJob);
+
   const [title, setTitle] = useState('');
   const [jobType, setJobType] = useState<JobType>('餐饮');
   const [description, setDescription] = useState('');
@@ -17,6 +28,9 @@ const PublishJobPage: React.FC = () => {
   const [hourlyRate, setHourlyRate] = useState('25');
   const [salaryNote, setSalaryNote] = useState('');
   const [address, setAddress] = useState('');
+  const [latitude, setLatitude] = useState(39.9087);
+  const [longitude, setLongitude] = useState(116.3975);
+  const [distance, setDistance] = useState('3.5km');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [shifts, setShifts] = useState<JobShift[]>([
     { date: '2026-06-15', startTime: '09:00', endTime: '18:00' }
@@ -67,17 +81,38 @@ const PublishJobPage: React.FC = () => {
       Taro.showToast({ title: error, icon: 'none' });
       return;
     }
-    console.log('[PublishJob] submit:', {
-      title, jobType, description, requirements, headcount, hourlyRate, salaryNote, address, selectedTags, shifts
+
+    const reqList = requirements
+      .split('\n')
+      .map(r => r.trim())
+      .filter(r => r.length > 0);
+
+    const newJob = addJob({
+      title,
+      type: jobType,
+      description,
+      requirements: reqList.length > 0 ? reqList : ['身体健康，吃苦耐劳'],
+      shifts,
+      headcount,
+      hourlyRate: Number(hourlyRate),
+      salaryNote: salaryNote || '按时结算，薪资透明',
+      address: address || '请输入工作地址',
+      latitude,
+      longitude,
+      distance,
+      tags: selectedTags
     });
+
+    console.log('[PublishJob] submit success, jobId:', newJob.id);
+
     Taro.showModal({
       title: '发布成功',
-      content: `岗位"${title}"已发布，共${shifts.length}个班次，招${headcount}人`,
+      content: `岗位"${title}"已发布\n共${shifts.length}个班次，招${headcount}人\n可在"我的岗位"中查看管理`,
       showCancel: false,
-      confirmText: '我知道了',
+      confirmText: '去看看',
       confirmColor: '#FF6B35',
       success: () => {
-        Taro.navigateBack();
+        Taro.switchTab({ url: '/pages/home/index' });
       }
     });
   };
@@ -88,7 +123,18 @@ const PublishJobPage: React.FC = () => {
   };
 
   const handlePickLocation = () => {
-    Taro.showToast({ title: '定位选点功能', icon: 'none' });
+    const locationList = MOCK_LOCATIONS.map(l => `${l.address}（${l.distance}）`).join('\n');
+    Taro.showActionSheet({
+      itemList: MOCK_LOCATIONS.map(l => `${l.address}（${l.distance}）`),
+      success: (res) => {
+        const loc = MOCK_LOCATIONS[res.tapIndex];
+        setAddress(loc.address);
+        setLatitude(loc.latitude);
+        setLongitude(loc.longitude);
+        setDistance(loc.distance);
+        Taro.showToast({ title: '已选择地址', icon: 'success' });
+      }
+    });
   };
 
   return (

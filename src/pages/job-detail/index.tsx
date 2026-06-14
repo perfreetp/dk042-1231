@@ -1,9 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
-import { getJobById } from '@/data/jobs';
-import { useStore } from '@/store/useStore';
+import { useStore, calculateShiftHours } from '@/store/useStore';
 import Tag from '@/components/Tag';
 import { formatCurrency } from '@/utils';
 import styles from './index.module.scss';
@@ -11,8 +10,15 @@ import styles from './index.module.scss';
 const JobDetailPage: React.FC = () => {
   const router = useRouter();
   const jobId = router.params.id || 'job_001';
-  const job = useMemo(() => getJobById(jobId), [jobId]);
-  const { isFavorite, toggleFavorite, currentRole } = useStore();
+  const getJobById = useStore(s => s.getJobById);
+  const { isFavorite, toggleFavorite, currentRole, applyToJob } = useStore();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useDidShow(() => {
+    setRefreshKey(k => k + 1);
+  });
+
+  const job = useMemo(() => getJobById(jobId), [jobId, getJobById, refreshKey]);
 
   if (!job) {
     return (
@@ -26,11 +32,7 @@ const JobDetailPage: React.FC = () => {
 
   const favorited = isFavorite(job.id);
   const progress = Math.min(100, (job.appliedCount / job.headcount) * 100);
-  const totalHours = job.shifts.reduce((sum, s) => {
-    const [sh, sm] = s.startTime.split(':').map(Number);
-    const [eh, em] = s.endTime.split(':').map(Number);
-    return sum + (eh + em / 60) - (sh + sm / 60);
-  }, 0);
+  const totalHours = job.shifts.reduce((sum, s) => sum + calculateShiftHours(s.startTime, s.endTime), 0);
   const estimatedSalary = totalHours * job.hourlyRate;
 
   const handleFavorite = () => {
@@ -50,15 +52,25 @@ const JobDetailPage: React.FC = () => {
       Taro.showToast({ title: '岗位已停止招聘', icon: 'none' });
       return;
     }
+    if (job.appliedCount >= job.headcount) {
+      Taro.showToast({ title: '岗位已招满', icon: 'none' });
+      return;
+    }
     Taro.showModal({
       title: '确认报名',
-      content: `确定要报名"${job.title}"岗位吗？\n预计收入${formatCurrency(estimatedSalary)}`,
+      content: `确定要报名"${job.title}"岗位吗？\n共${job.shifts.length}个班次，预计收入${formatCurrency(estimatedSalary)}`,
       confirmText: '立即报名',
       confirmColor: '#FF6B35',
       success: (res) => {
         if (res.confirm) {
-          console.log('[JobDetail] apply job:', job.id);
-          Taro.showToast({ title: '报名成功，等待审核', icon: 'success' });
+          const result = applyToJob(job.id);
+          if (result) {
+            console.log('[JobDetail] apply success:', result.id);
+            setRefreshKey(k => k + 1);
+            Taro.showToast({ title: '报名成功，等待审核', icon: 'success' });
+          } else {
+            Taro.showToast({ title: '您已报名过该岗位', icon: 'none' });
+          }
         }
       }
     });
@@ -149,15 +161,16 @@ const JobDetailPage: React.FC = () => {
         </Text>
         <View className={styles.shiftList}>
           {job.shifts.map((shift, i) => {
-            const [sh, sm] = shift.startTime.split(':').map(Number);
-            const [eh, em] = shift.endTime.split(':').map(Number);
-            const hours = (eh + em / 60) - (sh + sm / 60);
+            const hours = calculateShiftHours(shift.startTime, shift.endTime);
+            const isOvernight = shift.startTime > shift.endTime;
             return (
               <View key={i} className={styles.shiftItem}>
                 <View className={styles.shiftInfo}>
                   <Text className={styles.shiftDate}>{shift.date}</Text>
                   <Text className={styles.shiftTime}>
-                    {shift.startTime} - {shift.endTime}（{hours.toFixed(1)}小时）
+                    {shift.startTime} - {shift.endTime}
+                    {isOvernight && '（跨天）'}
+                    （{hours.toFixed(1)}小时）
                   </Text>
                 </View>
                 <Text className={styles.shiftSalary}>

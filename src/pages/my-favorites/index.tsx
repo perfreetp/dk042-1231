@@ -1,11 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
-import { mockJobs } from '@/data/jobs';
 import { useStore } from '@/store/useStore';
 import { formatCurrency, getStatusText } from '@/utils';
 import EmptyState from '@/components/EmptyState';
-import type { Job } from '@/types';
 import styles from './index.module.scss';
 
 type SortType = 'default' | 'salary' | 'distance' | 'latest';
@@ -18,16 +16,18 @@ const SORTS: { key: SortType; label: string }[] = [
 ];
 
 const MyFavoritesPage: React.FC = () => {
-  const { favoriteJobIds, toggleFavorite, isFavorite } = useStore();
+  const { favoriteJobIds, toggleFavorite, isFavorite, getMyFavoriteJobs, applyToJob } = useStore();
   const [sort, setSort] = useState<SortType>('default');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useDidShow(() => {
     console.log('[MyFavorites] did show, count:', favoriteJobIds.length);
+    setRefreshKey(k => k + 1);
   });
 
   const favoriteJobs = useMemo(() => {
-    let list = mockJobs.filter(j => isFavorite(j.id));
+    let list = getMyFavoriteJobs();
 
     switch (sort) {
       case 'salary':
@@ -44,7 +44,7 @@ const MyFavoritesPage: React.FC = () => {
     }
 
     return list;
-  }, [favoriteJobIds, sort, isFavorite]);
+  }, [getMyFavoriteJobs, sort, favoriteJobIds, refreshKey]);
 
   const stats = useMemo(() => {
     const recruiting = favoriteJobs.filter(j => j.status === 'recruiting').length;
@@ -57,11 +57,12 @@ const MyFavoritesPage: React.FC = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 600));
+    setRefreshKey(k => k + 1);
     setRefreshing(false);
     Taro.stopPullDownRefresh();
   };
 
-  const handleRemove = (job: Job) => {
+  const handleRemove = (job: { id: string; title: string }) => {
     Taro.showModal({
       title: '取消收藏',
       content: `确定要取消收藏「${job.title}」吗？`,
@@ -70,6 +71,7 @@ const MyFavoritesPage: React.FC = () => {
       success: (res) => {
         if (res.confirm) {
           toggleFavorite(job.id);
+          setRefreshKey(k => k + 1);
           Taro.showToast({ title: '已取消收藏', icon: 'none' });
         }
       }
@@ -80,7 +82,7 @@ const MyFavoritesPage: React.FC = () => {
     Taro.navigateTo({ url: `/pages/job-detail/index?id=${jobId}` });
   };
 
-  const handleApply = (job: Job) => {
+  const handleApply = (job: { id: string; status: string; appliedCount: number; headcount: number; title: string }) => {
     if (job.status !== 'recruiting') {
       Taro.showToast({ title: '该岗位已停止招聘', icon: 'none' });
       return;
@@ -89,7 +91,13 @@ const MyFavoritesPage: React.FC = () => {
       Taro.showToast({ title: '该岗位已招满', icon: 'none' });
       return;
     }
-    goDetail(job.id);
+    const result = applyToJob(job.id);
+    if (result) {
+      setRefreshKey(k => k + 1);
+      Taro.showToast({ title: '报名成功，等待审核', icon: 'success' });
+    } else {
+      Taro.showToast({ title: '您已报名过该岗位', icon: 'none' });
+    }
   };
 
   return (

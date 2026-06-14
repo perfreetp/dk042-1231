@@ -5,7 +5,7 @@ import styles from './index.module.scss';
 
 interface TagProps {
   text: string;
-  type?: 'default' | 'primary' | 'success' | 'warning' | 'info';
+  type?: 'default' | 'primary' | 'success' | 'warning' | 'info' | 'danger';
   size?: 'sm' | 'md';
 }
 

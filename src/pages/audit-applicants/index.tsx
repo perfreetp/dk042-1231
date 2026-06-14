@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Image } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
-import { mockApplications, getApplicationsByJobId } from '@/data/tasks';
-import { getJobById } from '@/data/jobs';
+import { useStore } from '@/store/useStore';
 import EmptyState from '@/components/EmptyState';
 import type { ApplicationStatus } from '@/types';
 import styles from './index.module.scss';
@@ -18,13 +17,20 @@ const STATUS_TABS: { key: 'all' | ApplicationStatus; label: string }[] = [
 const AuditApplicantsPage: React.FC = () => {
   const router = useRouter();
   const jobId = router.params.jobId || 'job_001';
+  const getJobById = useStore(s => s.getJobById);
+  const getApplicationsByJobId = useStore(s => s.getApplicationsByJobId);
+  const approveApplication = useStore(s => s.approveApplication);
+  const rejectApplication = useStore(s => s.rejectApplication);
+
   const [activeTab, setActiveTab] = useState<'all' | ApplicationStatus>('pending');
-  const [applications, setApplications] = useState(() => {
-    const jobApps = getApplicationsByJobId(jobId);
-    return jobApps.length > 0 ? jobApps : mockApplications;
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useDidShow(() => {
+    setRefreshKey(k => k + 1);
   });
 
-  const job = getJobById(jobId);
+  const job = useMemo(() => getJobById(jobId), [jobId, getJobById, refreshKey]);
+  const applications = useMemo(() => getApplicationsByJobId(jobId), [jobId, getApplicationsByJobId, refreshKey]);
 
   const stats = useMemo(() => ({
     total: applications.length,
@@ -41,14 +47,13 @@ const AuditApplicantsPage: React.FC = () => {
     console.log('[Audit] approve:', id);
     Taro.showModal({
       title: '确认录用',
-      content: '确认录用该求职者？录用后将发送通知短信',
+      content: '确认录用该求职者？录用后将自动生成任务并发送通知',
       confirmText: '确认录用',
       confirmColor: '#2ECC71',
       success: (res) => {
         if (res.confirm) {
-          setApplications(prev =>
-            prev.map(a => a.id === id ? { ...a, status: 'approved' } : a)
-          );
+          approveApplication(id);
+          setRefreshKey(k => k + 1);
           Taro.showToast({ title: '已发送录用通知', icon: 'success' });
         }
       }
@@ -60,9 +65,8 @@ const AuditApplicantsPage: React.FC = () => {
     Taro.showActionSheet({
       itemList: ['不符合岗位要求', '已招满', '条件不合适', '其他原因'],
       success: () => {
-        setApplications(prev =>
-          prev.map(a => a.id === id ? { ...a, status: 'rejected' } : a)
-        );
+        rejectApplication(id);
+        setRefreshKey(k => k + 1);
         Taro.showToast({ title: '已拒绝', icon: 'none' });
       }
     });
