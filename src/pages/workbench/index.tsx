@@ -106,17 +106,24 @@ const WorkbenchPage: React.FC = () => {
       itemList: taskList,
       success: (res) => {
         const task = available[res.tapIndex];
-        Taro.showModal({
-          title: '请假申请',
-          content: `确定要向「${task.jobTitle}」申请请假吗？\n申请后商家会进行审核`,
-          confirmText: '确认申请',
-          confirmColor: '#FF7D00',
-          success: (r) => {
-            if (r.confirm) {
-              applyLeave(task.id, '临时有事');
-              setRefreshKey(k => k + 1);
-              Taro.showToast({ title: '请假申请已提交', icon: 'success' });
-            }
+        const reasonList = ['身体不适', '家中有事', '临时有事', '交通不便', '其他原因'];
+        Taro.showActionSheet({
+          itemList: reasonList,
+          success: (r2) => {
+            const reason = reasonList[r2.tapIndex];
+            Taro.showModal({
+              title: '确认请假',
+              content: `向「${task.jobTitle}」申请请假\n请假原因：${reason}\n确定提交？`,
+              confirmText: '确认申请',
+              confirmColor: '#FF7D00',
+              success: (r) => {
+                if (r.confirm) {
+                  applyLeave(task.id, reason);
+                  setRefreshKey(k => k + 1);
+                  Taro.showToast({ title: '请假申请已提交', icon: 'success' });
+                }
+              }
+            });
           }
         });
       }
@@ -167,17 +174,24 @@ const WorkbenchPage: React.FC = () => {
       itemList: taskList,
       success: (res) => {
         const task = appealable[res.tapIndex];
-        Taro.showModal({
-          title: '异常申诉',
-          content: '请描述您的申诉内容，我们会尽快核实处理：\n（示例：工时不对、考勤异常、薪资问题等）',
-          confirmText: '提交申诉',
-          confirmColor: '#FF6B35',
-          success: (r) => {
-            if (r.confirm) {
-              submitAppeal(task.id, '工时计算有误');
-              setRefreshKey(k => k + 1);
-              Taro.showToast({ title: '申诉已提交，等待处理', icon: 'none' });
-            }
+        const reasonList = ['工时计算有误', '考勤异常', '薪资不对', '工作内容不符', '其他问题'];
+        Taro.showActionSheet({
+          itemList: reasonList,
+          success: (r2) => {
+            const reason = reasonList[r2.tapIndex];
+            Taro.showModal({
+              title: '提交申诉',
+              content: `向「${task.jobTitle}」提交申诉\n申诉内容：${reason}\n确定提交？`,
+              confirmText: '提交申诉',
+              confirmColor: '#FF6B35',
+              success: (r) => {
+                if (r.confirm) {
+                  submitAppeal(task.id, reason);
+                  setRefreshKey(k => k + 1);
+                  Taro.showToast({ title: '申诉已提交，等待处理', icon: 'none' });
+                }
+              }
+            });
           }
         });
       }

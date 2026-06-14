@@ -5,6 +5,8 @@ import { mockJobs } from '@/data/jobs';
 import { mockTasks, mockApplications } from '@/data/tasks';
 import { mockUsers } from '@/data/users';
 
+const STORAGE_KEY = 'temporary_job_store_v1';
+
 let _idCounter = 1000;
 const genId = (prefix: string) => {
   _idCounter += 1;
@@ -20,6 +22,42 @@ export const calculateShiftHours = (startTime: string, endTime: string): number 
     endMinutes += 24 * 60;
   }
   return Number(((endMinutes - startMinutes) / 60).toFixed(1));
+};
+
+interface PersistState {
+  currentRole: UserRole;
+  favoriteJobIds: string[];
+  jobs: Job[];
+  tasks: Task[];
+  applications: Application[];
+}
+
+const loadPersistedState = (): Partial<PersistState> => {
+  if (typeof window === 'undefined' || !window.localStorage) return {};
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as PersistState;
+    _idCounter = Math.max(
+      _idCounter,
+      ...parsed.jobs.map(j => Number(j.id.split('_')[1]) || 0),
+      ...parsed.tasks.map(t => Number(t.id.split('_')[1]) || 0),
+      ...parsed.applications.map(a => Number(a.id.split('_')[1]) || 0)
+    );
+    return parsed;
+  } catch (e) {
+    console.warn('[Store] failed to load persisted state:', e);
+    return {};
+  }
+};
+
+const persistState = (state: PersistState) => {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('[Store] failed to persist state:', e);
+  }
 };
 
 interface AppState {
@@ -56,19 +94,39 @@ interface AppState {
   submitAppeal: (taskId: string, reason: string) => void;
 
   calculateTaskIncome: (taskId: string) => number;
+  resetAll: () => void;
 }
 
 const defaultUser = mockUsers['u_001'];
 const merchantUser = mockUsers['m_001'];
+const persisted = loadPersistedState();
+
+const initialState: Pick<AppState, keyof PersistState> = {
+  currentRole: persisted.currentRole || 'worker',
+  favoriteJobIds: persisted.favoriteJobIds || ['job_002', 'job_005'],
+  jobs: persisted.jobs && persisted.jobs.length > 0 ? persisted.jobs : [...mockJobs],
+  tasks: persisted.tasks && persisted.tasks.length > 0 ? persisted.tasks : [...mockTasks],
+  applications: persisted.applications && persisted.applications.length > 0 ? persisted.applications : [...mockApplications]
+};
+
+const persist = (state: AppState) => {
+  persistState({
+    currentRole: state.currentRole,
+    favoriteJobIds: state.favoriteJobIds,
+    jobs: state.jobs,
+    tasks: state.tasks,
+    applications: state.applications
+  });
+};
 
 export const useStore = create<AppState>((set, get) => ({
-  currentRole: 'worker',
-  user: defaultUser,
+  currentRole: initialState.currentRole,
+  user: initialState.currentRole === 'worker' ? defaultUser : merchantUser,
   merchantUser,
-  favoriteJobIds: ['job_002', 'job_005'],
-  jobs: [...mockJobs],
-  tasks: [...mockTasks],
-  applications: [...mockApplications],
+  favoriteJobIds: initialState.favoriteJobIds,
+  jobs: initialState.jobs,
+  tasks: initialState.tasks,
+  applications: initialState.applications,
 
   setRole: (role) => {
     console.log('[Store] setRole:', role);
@@ -76,6 +134,7 @@ export const useStore = create<AppState>((set, get) => ({
       currentRole: role,
       user: role === 'worker' ? defaultUser : merchantUser
     });
+    persist(get());
   },
 
   toggleFavorite: (jobId) => {
@@ -87,6 +146,7 @@ export const useStore = create<AppState>((set, get) => ({
         ? favoriteJobIds.filter(id => id !== jobId)
         : [...favoriteJobIds, jobId]
     });
+    persist(get());
   },
 
   isFavorite: (jobId) => get().favoriteJobIds.includes(jobId),
@@ -105,14 +165,15 @@ export const useStore = create<AppState>((set, get) => ({
     };
     console.log('[Store] addJob:', newJob.id, newJob.title);
     set(state => ({ jobs: [newJob, ...state.jobs] }));
+    persist(get());
     return newJob;
   },
 
   getJobById: (id) => get().jobs.find(j => j.id === id),
 
   getMyJobs: () => {
-    const { merchantUser: m } = get();
-    return get().jobs.filter(j => j.merchantId === m.id);
+    const { merchantUser: m, jobs } = get();
+    return jobs.filter(j => j.merchantId === m.id);
   },
 
   getMyFavoriteJobs: () => {
@@ -121,13 +182,14 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   applyToJob: (jobId, message) => {
-    const { user, jobs, applications } = get();
-    const job = jobs.find(j => j.id === jobId);
-    if (!job || job.status !== 'recruiting' || job.appliedCount >= job.headcount) {
+    const { user, applications, jobs } = get();
+    const exists = applications.find(a => a.jobId === jobId && a.userId === user.id);
+    if (exists) {
+      console.log('[Store] applyToJob already applied:', jobId);
       return null;
     }
-    const alreadyApplied = applications.some(a => a.jobId === jobId && a.userId === user.id);
-    if (alreadyApplied) return null;
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return null;
 
     const newApp: Application = {
       id: genId('app'),
@@ -139,61 +201,68 @@ export const useStore = create<AppState>((set, get) => ({
       appliedAt: dayjs().format('YYYY-MM-DD HH:mm'),
       message
     };
-
     set(state => ({
       applications: [newApp, ...state.applications],
-      jobs: state.jobs.map(j => j.id === jobId ? { ...j, appliedCount: j.appliedCount + 1 } : j)
+      jobs: state.jobs.map(j =>
+        j.id === jobId ? { ...j, appliedCount: j.appliedCount + 1 } : j
+      )
     }));
-    console.log('[Store] applyToJob:', newApp.id, jobId);
+    console.log('[Store] applyToJob:', jobId, newApp.id);
+    persist(get());
     return newApp;
   },
 
-  getApplicationsByJobId: (jobId) => get().applications.filter(a => a.jobId === jobId),
+  getApplicationsByJobId: (jobId) => {
+    return get().applications.filter(a => a.jobId === jobId);
+  },
 
   getMyApplications: () => {
-    const { user } = get();
-    return get().applications.filter(a => a.userId === user.id);
+    const { user, applications } = get();
+    return applications.filter(a => a.userId === user.id);
   },
 
   approveApplication: (appId) => {
-    const { applications, jobs, tasks, user } = get();
-    const app = applications.find(a => a.id === appId);
-    if (!app || app.status !== 'pending') return;
-
-    const job = jobs.find(j => j.id === app.jobId);
+    const app = get().applications.find(a => a.id === appId);
+    if (!app) return;
+    const job = get().jobs.find(j => j.id === app.jobId);
     if (!job) return;
 
-    const newTasks: Task[] = job.shifts.map(shift => {
-      const hours = calculateShiftHours(shift.startTime, shift.endTime);
-      return {
-        id: genId('task'),
-        jobId: job.id,
-        jobTitle: job.title,
-        jobType: job.type,
-        merchantName: job.merchantName,
-        date: shift.date,
-        startTime: shift.startTime,
-        endTime: shift.endTime,
-        address: job.address,
-        hourlyRate: job.hourlyRate,
-        estimatedHours: hours,
-        status: 'pending' as const,
-        appealStatus: 'none' as const
-      };
-    });
+    const firstShift = job.shifts[0];
+    if (!firstShift) return;
 
+    const hours = calculateShiftHours(firstShift.startTime, firstShift.endTime);
+    const newTask: Task = {
+      id: genId('task'),
+      jobId: job.id,
+      jobTitle: job.title,
+      jobType: job.type,
+      merchantName: job.merchantName,
+      date: firstShift.date,
+      startTime: firstShift.startTime,
+      endTime: firstShift.endTime,
+      address: job.address,
+      hourlyRate: job.hourlyRate,
+      estimatedHours: hours,
+      status: 'pending'
+    };
     set(state => ({
-      applications: state.applications.map(a => a.id === appId ? { ...a, status: 'approved' as const } : a),
-      tasks: [...state.tasks, ...newTasks]
+      applications: state.applications.map(a =>
+        a.id === appId ? { ...a, status: 'approved' as const } : a
+      ),
+      tasks: [newTask, ...state.tasks]
     }));
-    console.log('[Store] approveApplication:', appId, '生成', newTasks.length, '个任务');
+    console.log('[Store] approveApplication:', appId, 'task:', newTask.id);
+    persist(get());
   },
 
   rejectApplication: (appId) => {
     set(state => ({
-      applications: state.applications.map(a => a.id === appId ? { ...a, status: 'rejected' as const } : a)
+      applications: state.applications.map(a =>
+        a.id === appId ? { ...a, status: 'rejected' as const } : a
+      )
     }));
     console.log('[Store] rejectApplication:', appId);
+    persist(get());
   },
 
   getTasksByStatus: (status) => get().tasks.filter(t => t.status === status),
@@ -212,23 +281,29 @@ export const useStore = create<AppState>((set, get) => ({
       )
     }));
     console.log('[Store] checkInTask:', taskId, now);
+    persist(get());
   },
 
   checkOutTask: (taskId) => {
     const now = dayjs().format('YYYY-MM-DD HH:mm');
-    set(state => {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task || task.status !== 'ongoing') return state;
-      const hours = task.estimatedHours;
-      return {
-        tasks: state.tasks.map(t =>
-          t.id === taskId
-            ? { ...t, status: 'completed' as const, checkOutTime: now, actualHours: hours }
-            : t
-        )
-      };
-    });
+    set(state => ({
+      tasks: state.tasks.map(t => {
+        if (t.id !== taskId || t.status !== 'ongoing') return t;
+        const task = state.tasks.find(x => x.id === taskId);
+        if (!task) return t;
+        const start = task.checkInTime ? dayjs(task.checkInTime) : dayjs(`${task.date} ${task.startTime}`);
+        const end = dayjs(now);
+        const diffHours = Number(((end.valueOf() - start.valueOf()) / 3600000).toFixed(1));
+        return {
+          ...t,
+          status: 'completed' as const,
+          checkOutTime: now,
+          actualHours: diffHours > 0 ? Math.max(diffHours, task.estimatedHours * 0.5) : task.estimatedHours
+        };
+      })
+    }));
     console.log('[Store] checkOutTask:', taskId, now);
+    persist(get());
   },
 
   applyLeave: (taskId, reason) => {
@@ -240,6 +315,7 @@ export const useStore = create<AppState>((set, get) => ({
       )
     }));
     console.log('[Store] applyLeave:', taskId, reason);
+    persist(get());
   },
 
   confirmTaskHours: (taskId, actualHours) => {
@@ -251,6 +327,7 @@ export const useStore = create<AppState>((set, get) => ({
       )
     }));
     console.log('[Store] confirmTaskHours:', taskId, actualHours);
+    persist(get());
   },
 
   submitAppeal: (taskId, reason) => {
@@ -262,6 +339,7 @@ export const useStore = create<AppState>((set, get) => ({
       )
     }));
     console.log('[Store] submitAppeal:', taskId, reason);
+    persist(get());
   },
 
   calculateTaskIncome: (taskId) => {
@@ -269,5 +347,21 @@ export const useStore = create<AppState>((set, get) => ({
     if (!task) return 0;
     const hours = task.actualHours || task.estimatedHours;
     return Number((hours * task.hourlyRate).toFixed(2));
+  },
+
+  resetAll: () => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+    set({
+      currentRole: 'worker',
+      user: defaultUser,
+      favoriteJobIds: ['job_002', 'job_005'],
+      jobs: [...mockJobs],
+      tasks: [...mockTasks],
+      applications: [...mockApplications]
+    });
+    _idCounter = 1000;
+    console.log('[Store] resetAll done');
   }
 }));
