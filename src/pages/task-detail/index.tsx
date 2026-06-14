@@ -46,8 +46,12 @@ const TaskDetailPage: React.FC = () => {
       actions: ['扫码签退', '工时记录', '联系商家']
     },
     completed: {
-      desc: '工作已完成，等待商家确认工时和结算',
-      actions: ['确认工时', '异常申诉', '去评价']
+      desc: '工作已完成，请确认工时，如有异常可申诉',
+      actions: ['确认工时', '异常申诉', '联系商家']
+    },
+    hours_confirmed: {
+      desc: '工时已确认，等待商家结算',
+      actions: ['异常申诉', '查看评价', '联系商家']
     },
     settled: {
       desc: '工资已结算，期待继续合作！',
@@ -441,6 +445,21 @@ const TaskDetailPage: React.FC = () => {
               onClick={handleConfirmHours}
             >
               确认工时
+            </View>
+          </>
+        )}
+        {task.status === 'hours_confirmed' && (
+          <>
+            <View
+              className={classnames(styles.btn, styles.btnSecondary)}
+              onClick={handleAppeal}
+            >
+              申诉
+            </View>
+            <View
+              className={classnames(styles.btn, styles.btnSuccess)}
+            >
+              ✓ 工时已确认
             </View>
           </>
         )}

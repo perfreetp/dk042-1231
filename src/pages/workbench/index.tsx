@@ -28,18 +28,20 @@ const WorkbenchPage: React.FC = () => {
 
   const filteredTasks = useMemo(() => {
     if (activeTab === 'all') return allTasks;
+    if (activeTab === 'completed') return allTasks.filter(t => t.status === 'completed' || t.status === 'hours_confirmed');
     return allTasks.filter(t => t.status === activeTab);
   }, [allTasks, activeTab]);
 
   const stats = useMemo(() => ({
     pending: allTasks.filter(t => t.status === 'pending').length,
     ongoing: allTasks.filter(t => t.status === 'ongoing').length,
-    completed: allTasks.filter(t => t.status === 'completed').length
+    completed: allTasks.filter(t => t.status === 'completed' || t.status === 'hours_confirmed').length
   }), [allTasks]);
 
   const pendingTasks = useMemo(() => allTasks.filter(t => t.status === 'pending'), [allTasks]);
   const ongoingTasks = useMemo(() => allTasks.filter(t => t.status === 'ongoing'), [allTasks]);
   const completedTasks = useMemo(() => allTasks.filter(t => t.status === 'completed'), [allTasks]);
+  const hoursConfirmedTasks = useMemo(() => allTasks.filter(t => t.status === 'hours_confirmed'), [allTasks]);
 
   const handleScan = () => {
     if (pendingTasks.length === 0 && ongoingTasks.length === 0) {
@@ -122,15 +124,20 @@ const WorkbenchPage: React.FC = () => {
   };
 
   const handleConfirm = () => {
-    if (completedTasks.length === 0) {
+    const pendingConfirm = completedTasks;
+    if (pendingConfirm.length === 0 && hoursConfirmedTasks.length > 0) {
+      Taro.showToast({ title: '所有任务工时已确认，等待结算', icon: 'none' });
+      return;
+    }
+    if (pendingConfirm.length === 0) {
       Taro.showToast({ title: '暂无可确认的工时', icon: 'none' });
       return;
     }
-    const taskList = completedTasks.map(t => `${t.jobTitle}（${t.date}）· ${t.actualHours || t.estimatedHours}小时`);
+    const taskList = pendingConfirm.map(t => `${t.jobTitle}（${t.date}）· ${t.actualHours || t.estimatedHours}小时`);
     Taro.showActionSheet({
       itemList: taskList,
       success: (res) => {
-        const task = completedTasks[res.tapIndex];
+        const task = pendingConfirm[res.tapIndex];
         const hours = task.actualHours || task.estimatedHours;
         Taro.showModal({
           title: '确认工时',
@@ -150,15 +157,16 @@ const WorkbenchPage: React.FC = () => {
   };
 
   const handleAppeal = () => {
-    if (allTasks.length === 0) {
+    const appealable = allTasks.filter(t => t.status === 'completed' || t.status === 'hours_confirmed');
+    if (appealable.length === 0) {
       Taro.showToast({ title: '暂无任务可申诉', icon: 'none' });
       return;
     }
-    const taskList = allTasks.map(t => `${t.jobTitle}（${t.date}）`);
+    const taskList = appealable.map(t => `${t.jobTitle}（${t.date}）`);
     Taro.showActionSheet({
       itemList: taskList,
       success: (res) => {
-        const task = allTasks[res.tapIndex];
+        const task = appealable[res.tapIndex];
         Taro.showModal({
           title: '异常申诉',
           content: '请描述您的申诉内容，我们会尽快核实处理：\n（示例：工时不对、考勤异常、薪资问题等）',

@@ -234,7 +234,9 @@ export const useStore = create<AppState>((set, get) => ({
   applyLeave: (taskId, reason) => {
     set(state => ({
       tasks: state.tasks.map(t =>
-        t.id === taskId ? { ...t, leaveApplied: true } : t
+        t.id === taskId && (t.status === 'pending' || t.status === 'ongoing')
+          ? { ...t, status: 'leave' as const, leaveApplied: true, leaveReason: reason }
+          : t
       )
     }));
     console.log('[Store] applyLeave:', taskId, reason);
@@ -244,7 +246,7 @@ export const useStore = create<AppState>((set, get) => ({
     set(state => ({
       tasks: state.tasks.map(t =>
         t.id === taskId && (t.status === 'completed' || t.status === 'ongoing')
-          ? { ...t, status: 'completed' as const, actualHours }
+          ? { ...t, status: 'hours_confirmed' as const, actualHours }
           : t
       )
     }));
@@ -254,7 +256,9 @@ export const useStore = create<AppState>((set, get) => ({
   submitAppeal: (taskId, reason) => {
     set(state => ({
       tasks: state.tasks.map(t =>
-        t.id === taskId ? { ...t, appealStatus: 'pending' as const } : t
+        t.id === taskId && (t.status === 'completed' || t.status === 'hours_confirmed')
+          ? { ...t, status: 'appeal' as const, appealStatus: 'pending' as const, appealReason: reason }
+          : t
       )
     }));
     console.log('[Store] submitAppeal:', taskId, reason);

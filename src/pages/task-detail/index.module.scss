@@ -15,6 +15,7 @@
   &.pending { background: linear-gradient(135deg, #3498DB 0%, #5DADE2 100%); }
   &.ongoing { background: $color-primary-gradient; }
   &.completed { background: linear-gradient(135deg, #FF7D00 0%, #FFA94D 100%); }
+  &.hours_confirmed { background: linear-gradient(135deg, #2ECC71 0%, #58D68D 100%); }
   &.settled { background: linear-gradient(135deg, #2ECC71 0%, #58D68D 100%); }
   &.leave { background: linear-gradient(135deg, #FF7D00 0%, #FFA94D 100%); }
   &.appeal { background: linear-gradient(135deg, #F53F3F 0%, #FF6B6B 100%); }

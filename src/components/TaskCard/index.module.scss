@@ -121,6 +121,20 @@
   color: $color-text-secondary;
 }
 
+.leaveReason {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-warning;
+  font-weight: $font-weight-medium;
+}
+
+.appealReason {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: #F53F3F;
+  font-weight: $font-weight-medium;
+}
+
 .footer {
   display: flex;
   align-items: center;
